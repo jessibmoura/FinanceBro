@@ -46,10 +46,21 @@ def process_expense(message):
 
     try:
         float_value, description, category = parse_message(expense_message)
-        bot.send_message(chat_id, f"So, what I'm getting is:\n\nValue: {float_value}\nDescription: {description}\nCategory: {category}\n\nAm I wrong? [Y/N]")
+        bot.send_message(chat_id, f"So, what I'm getting is:\n\nValue: {float_value}\nDescription: {description}\nCategory: {category}\n\nIs that right? [Y/N]")
+        bot.register_next_step_handler(message, reprocess_expense)
     except Exception as e:
         bot.send_message(chat_id, f"Oops! There was an error processing your input: \n>{e}\nPlease try again.")
         bot.register_next_step_handler(message, process_expense)  # tenta de novo
+
+def reprocess_expense(message):
+    chat_id = message.chat.id
+    status = message.text.strip()
+
+    if status.upper() == 'N':
+        bot.send_message(chat_id, f"Can you try sending the message again?")
+        bot.register_next_step_handler(message, process_expense)
+    elif status.upper() == 'Y':
+        bot.send_message(chat_id, f"Nice! Expense registered!")
 
 
 print("Bot running...")
