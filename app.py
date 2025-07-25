@@ -2,6 +2,7 @@ from utils.utils import *
 
 import telebot
 from dotenv import load_dotenv
+from datetime import datetime
 import os
 
 load_dotenv()
@@ -32,7 +33,7 @@ def hello(message):
     chat_id = message.chat.id
     bot.send_message(chat_id, f"Yo {users[chat_id]}, talk to me. What’s the play, bro?")
 
-@bot.message_handler(commands=['in'])
+@bot.message_handler(commands=['out'])
 def expense(message):
     """ Message to register a new income value """
     chat_id = message.chat.id
@@ -46,7 +47,17 @@ def process_expense(message):
 
     try:
         float_value, description, category = parse_message(expense_message)
-        bot.send_message(chat_id, f"So, what I'm getting is:\n\nValue: {float_value}\nDescription: {description}\nCategory: {category}\n\nIs that right? [Y/N]")
+        send_date = datetime.now().strftime('%d/%m/%Y')
+
+        register = {
+            "value": float_value,
+            "description": description,
+            "category": category,
+            "date": send_date
+        }
+        print(f"Register: {register}")
+
+        bot.send_message(chat_id, f"""So, what I'm getting is:\n\n 📅 Date: {send_date}\n💰 Value: {float_value}\n📝 Description: {description or '(No description)'}\n🏷️ Category: {category}\n\nIs that right? [Y/N]""")
         bot.register_next_step_handler(message, reprocess_expense)
     except Exception as e:
         bot.send_message(chat_id, f"Oops! There was an error processing your input: \n>{e}\nPlease try again.")
@@ -60,7 +71,7 @@ def reprocess_expense(message):
         bot.send_message(chat_id, f"Can you try sending the message again?")
         bot.register_next_step_handler(message, process_expense)
     elif status.upper() == 'Y':
-        bot.send_message(chat_id, f"Nice! Expense registered!")
+        bot.send_message(chat_id, f"Alright champ! Expense registered. 💸")
 
 
 print("Bot running...")
