@@ -1,4 +1,5 @@
 from utils.utils import *
+from database.firestore import FirestoreDB
 
 import telebot
 from dotenv import load_dotenv
@@ -7,31 +8,41 @@ import os
 
 load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN")
-users = {}
 
 bot = telebot.TeleBot(TOKEN) # type: ignore
+db = FirestoreDB()
+USUARIO_CACHE = {}
 
-@bot.message_handler(commands=['start'])
+@bot.message_handler(commands=['hello'])
 def first_contact(message):
     """ Asks user for name and welcomes them """
     chat_id = message.chat.id
-    bot.send_message(chat_id, """What’s up, legend? Name’s Finance Bro — your personal CFO, hype man, and accountability partner on the road to obscene wealth.\n 
-I’m here to 10x your net worth, optimize your hustle, and make sure your wallet stays as jacked as your gym routine.\n\nBut before we start stacking wins... what should I call the next big player in this market?""")
-    bot.register_next_step_handler(message,welcoming)
+    
+    if db.check_user(chat_id):
+        name = db.user_collection.document(str(chat_id)).get().to_dict().get("name")
+        USUARIO_CACHE[chat_id] = name
+        bot.send_message(chat_id, f"Sup {name}, my legend! 🔥")
+    else:
+        bot.send_message(chat_id, """What’s up, legend? Name’s Finance Bro — your personal CFO, hype man, and accountability partner on the road to obscene wealth.\n 
+I’m here to 10x your net worth, optimize your hustle, and make sure your wallet stays as jacked as your gym routine.\n\nBut before we start stacking wins... let me get to know you! Please tell me info below:\n\n Name\nMonthly Income (it can be a estimation)\nSavings Target (0 if you don't have it)""")
+        bot.register_next_step_handler(message,welcoming)
 
 def welcoming(message):
     """ Gives a warm welcoming to user by calling them the name they gave before. """
     chat_id = message.chat.id
-    name = message.text.strip()
-    users[chat_id] = name
-    bot.send_message(chat_id,f""" Lock it in, {name}.\nWe’re about to dominate this savings game like it’s earnings season.\nNo lattes, no liabilities — just pure, uncut capital gains. Let’s build that war chest, bro 💼🔥""")
+    welcome_message = message.text.strip()
+    # Gets information about user
+    name, mon_income_flt, save_target_flt = parse_start_message(welcome_message)
 
+    user = {
+        "name": name,
+        "monthly_income": mon_income_flt,
+        "savings_target": save_target_flt
+    }
 
-@bot.message_handler(commands=['hello'])
-def hello(message):
-    """ Message asking if user needs help """
-    chat_id = message.chat.id
-    bot.send_message(chat_id, f"Yo {users[chat_id]}, talk to me. What’s the play, bro?")
+    USUARIO_CACHE[chat_id] = name
+    if db.create_user(chat_id, user):
+        bot.send_message(chat_id,f""" Lock it in, {name}.\nWe’re about to dominate this savings game like it’s earnings season.\nNo lattes, no liabilities — just pure, uncut capital gains. Let’s build that war chest, bro 💼🔥""")
 
 @bot.message_handler(commands=['out'])
 def expense(message):
@@ -86,7 +97,7 @@ def process_expense(message):
     expense_message = message.text.strip() # <expense: float> \n <description: str optional> \n <category: str>
 
     try:
-        float_value, description, category = parse_message(expense_message)
+        float_value, description, category = parse_expense_message(expense_message)
         send_date = datetime.now().strftime('%d/%m/%Y')
 
         register = {
