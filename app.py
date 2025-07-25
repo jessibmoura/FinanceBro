@@ -35,15 +35,55 @@ def hello(message):
 
 @bot.message_handler(commands=['out'])
 def expense(message):
-    """ Message to register a new income value """
+    """ Message to register a new expense value """
     chat_id = message.chat.id
     bot.send_message(chat_id, f"Logging a new capital outflow, bro? What are we tagging this one as? ")
     bot.register_next_step_handler(message, process_expense)
 
+@bot.message_handler(commands=['in'])
+def income(message):
+    """ Message to register a new income value """
+    chat_id = message.chat.id
+    bot.send_message(chat_id, f"Yooo made some extra money?? Tell me all about it!")
+    bot.register_next_step_handler(message, process_income)
+
+def process_income(message):
+    """ Extracts the information necessary from the message """
+    
+    chat_id = message.chat.id
+    income_message = message.text.strip() # <income: float> \n <description: str optional>
+
+    try:
+        float_value, description = parse_income_message(income_message)
+        send_date = datetime.now().strftime('%d/%m/%Y')
+
+        register = {
+            "value": float_value,
+            "description": description,
+            "date": send_date
+        }
+        print(f"Register: {register}")
+
+        bot.send_message(chat_id, f"""So, what I'm getting is:\n\n 📅 Date: {send_date}\n💰 Value: {float_value}\n📝 Description: {description or '(No description)'}\n\nIs that right? [Y/N]""")
+        bot.register_next_step_handler(message, reprocess_income)
+    except Exception as e:
+        bot.send_message(chat_id, f"Oops! There was an error processing your input: \n>{e}\nPlease try again.")
+        bot.register_next_step_handler(message, process_income)
+
+def reprocess_income(message):
+    chat_id = message.chat.id
+    status = message.text.strip()
+
+    if status.upper() == 'N':
+        bot.send_message(chat_id, f"Can you try sending the message again?")
+        bot.register_next_step_handler(message, process_income)
+    elif status.upper() == 'Y':
+        bot.send_message(chat_id, f"Good job! Income registered. 💸")
+
 def process_expense(message):
     """ Extracts the information necessary from the message """
     chat_id = message.chat.id
-    expense_message = message.text.strip() # <expense: float> blank-space <description: str optional> blank-space <category: str>
+    expense_message = message.text.strip() # <expense: float> \n <description: str optional> \n <category: str>
 
     try:
         float_value, description, category = parse_message(expense_message)
@@ -61,7 +101,7 @@ def process_expense(message):
         bot.register_next_step_handler(message, reprocess_expense)
     except Exception as e:
         bot.send_message(chat_id, f"Oops! There was an error processing your input: \n>{e}\nPlease try again.")
-        bot.register_next_step_handler(message, process_expense)  # tenta de novo
+        bot.register_next_step_handler(message, process_expense) 
 
 def reprocess_expense(message):
     chat_id = message.chat.id
