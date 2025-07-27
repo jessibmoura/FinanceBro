@@ -1,4 +1,5 @@
 from utils.utils import *
+from utils.images import *
 from database.firestore import FirestoreDB
 
 import telebot
@@ -122,8 +123,13 @@ def reprocess_expense(message):
         bot.send_message(chat_id, f"Can you try sending the message again?")
         bot.register_next_step_handler(message, process_expense)
     elif status.upper() == 'Y':
-        bot.send_message(chat_id, f"Alright champ! Expense registered. 💸")
+        bot.send_message(chat_id, f"Ok champ... Expense registered... Let's try to not spend all of our money away. 💸")
+        bot.send_sticker(chat_id, expense_id_sticker())
 
+# @bot.message_handler(content_types=['sticker'])
+# def pegar_file_id(message):
+#     print("File ID da figurinha:", message.sticker.file_id)
+#     bot.reply_to(message, f"File ID: {message.sticker.file_id}")
 
 print("Bot running...")
 bot.infinity_polling()
