@@ -1,6 +1,7 @@
 from google.cloud import firestore
 from datetime import datetime
 from dotenv import load_dotenv
+import pendulum
 import os
 
 load_dotenv()
@@ -11,6 +12,7 @@ class FirestoreDB:
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = cred_path
         self.db = firestore.Client()
         self.user_collection = self.db.collection("users")
+        self.monthly_expenses = self.db.collection("monthly_expenses")
     
     def create_user(self, chat_id: int, information: dict):
         """ Register information about a new user
@@ -58,4 +60,39 @@ class FirestoreDB:
         """
         doc_ref = self.user_collection.document(str(chat_id))
         return doc_ref.get().exists
+    
+    def insert_expense(self, chat_id: int, information: dict):
+        """ Register a new expense
+        
+        Parameters
+        ----------
+        chat_id: int
+            Id from telegram chat
+        information: dict
+            Dictionary containing information about expense
+        
+        Returns
+        -------
+        bool
+            If it all goes right, returns True. Returns False in case of error.
+        """
+        dt = pendulum.from_format(information["date"], "DD/MM/YYYY")
+        str_dt = dt.format('MM_YYYY')
+        doc_ref = self.monthly_expenses.document(str_dt)
+        print("Month document seen: ",str_dt)
+
+        try:
+            doc_ref.set({
+                "chat_id": information["chat_id"],
+                "value": information["value"],
+                "description": information["description"],
+                "category": information["category"],
+                "date": information["date"],
+                "created_at": firestore.SERVER_TIMESTAMP
+            })
+            print(f"Expense registered successfully!")
+            return True
+        except Exception as exc:
+            print(exc)
+            return False
     

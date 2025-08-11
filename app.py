@@ -4,7 +4,7 @@ from database.firestore import FirestoreDB
 
 import telebot
 from dotenv import load_dotenv
-from datetime import datetime
+import pendulum
 import os
 
 load_dotenv()
@@ -67,7 +67,7 @@ def process_income(message):
 
     try:
         float_value, description = parse_income_message(income_message)
-        send_date = datetime.now().strftime('%d/%m/%Y')
+        send_date = pendulum.now().format("DD/MM/YYYY")
 
         register = {
             "value": float_value,
@@ -99,9 +99,10 @@ def process_expense(message):
 
     try:
         float_value, description, category = parse_expense_message(expense_message)
-        send_date = datetime.now().strftime('%d/%m/%Y')
+        send_date = pendulum.now().format("DD/MM/YYYY")
 
         register = {
+            "chat_id":chat_id,
             "value": float_value,
             "description": description,
             "category": category,
@@ -110,12 +111,12 @@ def process_expense(message):
         print(f"Register: {register}")
 
         bot.send_message(chat_id, f"""So, what I'm getting is:\n\n 📅 Date: {send_date}\n💰 Value: {float_value}\n📝 Description: {description or '(No description)'}\n🏷️ Category: {category}\n\nIs that right? [Y/N]""")
-        bot.register_next_step_handler(message, reprocess_expense)
+        bot.register_next_step_handler(message, reprocess_expense, register)
     except Exception as e:
         bot.send_message(chat_id, f"Oops! There was an error processing your input: \n>{e}\nPlease try again.")
         bot.register_next_step_handler(message, process_expense) 
 
-def reprocess_expense(message):
+def reprocess_expense(message, register: dict):
     chat_id = message.chat.id
     status = message.text.strip()
 
@@ -123,6 +124,7 @@ def reprocess_expense(message):
         bot.send_message(chat_id, f"Can you try sending the message again?")
         bot.register_next_step_handler(message, process_expense)
     elif status.upper() == 'Y':
+        db.insert_expense(chat_id=chat_id,information=register)
         bot.send_message(chat_id, f"Ok champ... Expense registered... Let's try to not spend all of our money away. 💸")
         bot.send_sticker(chat_id, expense_id_sticker())
 
