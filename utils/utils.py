@@ -1,3 +1,5 @@
+import pendulum
+
 def parse_start_message(msg: str):
     """
     Functions takes the start message and extracts three values from it: the user name, their

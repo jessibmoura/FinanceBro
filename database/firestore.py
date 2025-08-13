@@ -61,38 +61,79 @@ class FirestoreDB:
         doc_ref = self.user_collection.document(str(chat_id))
         return doc_ref.get().exists
     
-    def insert_expense(self, chat_id: int, information: dict):
-        """ Register a new expense
+# def insert_expense(self, chat_id: int, information: dict):
+#     """ Register a new expense
+    
+#     Parameters
+#     ----------
+#     chat_id: int
+#         Id from telegram chat
+#     information: dict
+#         Dictionary containing information about expense
+    
+#     Returns
+#     -------
+#     bool
+#         If it all goes right, returns True. Returns False in case of error.
+#     """
+#     dt = pendulum.from_format(information["date"], "DD/MM/YYYY")
+#     str_dt = dt.format('MM_YYYY')
+#     doc_ref = self.monthly_expenses.document(str_dt)
+#     print("Month document seen: ",str_dt)
+
+#     try:
+#         doc_ref.set({
+#             "chat_id": information["chat_id"],
+#             "value": information["value"],
+#             "description": information["description"],
+#             "category": information["category"],
+#             "date": information["date"],
+#             "created_at": firestore.SERVER_TIMESTAMP
+#         })
+#         print(f"Expense registered successfully!")
+#         return True
+#     except Exception as exc:
+#         print(exc)
+#         return False
+    
+    def insert_expense(self, chat_id: int, information: dict) -> bool:
+        """
+        Register a new expense inside user's subcollection 'expenses'.
         
+        Expected information keys: value, description, category, date (DD/MM/YYYY)
+    
         Parameters
         ----------
         chat_id: int
             Id from telegram chat
         information: dict
             Dictionary containing information about expense
-        
+
         Returns
         -------
         bool
             If it all goes right, returns True. Returns False in case of error.
         """
-        dt = pendulum.from_format(information["date"], "DD/MM/YYYY")
-        str_dt = dt.format('MM_YYYY')
-        doc_ref = self.monthly_expenses.document(str_dt)
-        print("Month document seen: ",str_dt)
-
         try:
-            doc_ref.set({
-                "chat_id": information["chat_id"],
-                "value": information["value"],
-                "description": information["description"],
-                "category": information["category"],
-                "date": information["date"],
+            dt = pendulum.from_format(information["date"], "DD/MM/YYYY")
+            formatted_date = dt.format("YYYY-MM-DD")
+
+            # Path: users/{chat_id}/expenses/{auto_id}
+            expenses_ref = self.user_collection.document(str(chat_id)).collection("expenses")
+            
+            expense_data = {
+                "value": information.get("value"),
+                "description": information.get("description", ""),
+                "category": information.get("category", ""),
+                "date": formatted_date,
+                "month_year": dt.format("MM-YYYY"),  # useful for queries
                 "created_at": firestore.SERVER_TIMESTAMP
-            })
-            print(f"Expense registered successfully!")
+            }
+
+            expenses_ref.add(expense_data)  # Firestore auto-generates an ID
+            print(f"Expense added for user {chat_id}: {expense_data}")
             return True
+
         except Exception as exc:
-            print(exc)
+            print(f"Error inserting expense: {exc}")
             return False
-    
