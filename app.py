@@ -98,19 +98,18 @@ def process_expense(message):
     expense_message = message.text.strip() # <expense: float> \n <description: str optional> \n <category: str>
 
     try:
-        float_value, description, category = parse_expense_message(expense_message)
-        send_date = pendulum.now().format("DD/MM/YYYY")
+        float_value, description, category, date = parse_expense_message(expense_message)
 
         register = {
             "chat_id":chat_id,
             "value": float_value,
             "description": description,
             "category": category,
-            "date": send_date
+            "date": date
         }
         print(f"Register: {register}")
 
-        bot.send_message(chat_id, f"""So, what I'm getting is:\n\n 📅 Date: {send_date}\n💰 Value: {float_value}\n📝 Description: {description or '(No description)'}\n🏷️ Category: {category}\n\nIs that right? [Y/N]""")
+        bot.send_message(chat_id, f"""So, what I'm getting is:\n\n 📅 Date: {date}\n💰 Value: {float_value}\n📝 Description: {description or '(No description)'}\n🏷️ Category: {category}\n\nIs that right? [Y/N]""")
         bot.register_next_step_handler(message, reprocess_expense, register)
     except Exception as e:
         bot.send_message(chat_id, f"Oops! There was an error processing your input: \n>{e}\nPlease try again.")

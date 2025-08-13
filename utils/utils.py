@@ -38,13 +38,17 @@ def parse_expense_message(msg: str):
     """
     lines = [line.strip() for line in msg.strip().split('\n') if line.strip()]
     
-    if len(lines) == 3:
+    if len(lines) == 4:
+        str_value, description, category, date = lines
+    elif len(lines) == 3:
         str_value, description, category = lines
+        date = pendulum.now().format("DD/MM/YYYY")
     elif len(lines) == 2:
         str_value, category = lines
         description = None  # value None if no description is given
+        date = pendulum.now().format("DD/MM/YYYY")
     else:
-        raise ValueError("Invalid format: Use:\n<value>\n[description: optional]\n<category>")
+        raise ValueError("Invalid format, please use:\n<value>\n[description: optional]\n<category>\n<date DD/MM/YYYY>")
 
     # Validação e conversão do valor
     try:
@@ -52,7 +56,7 @@ def parse_expense_message(msg: str):
     except ValueError:
         raise ValueError("Invalid value: Please only use numbers for the values.")
 
-    return float_value, description, category
+    return float_value, description, category, date
 
 def parse_income_message(msg: str):
     """
