@@ -45,6 +45,7 @@ def welcoming(message):
     if db.create_user(chat_id, user):
         bot.send_message(chat_id,f""" Lock it in, {name}.\nWe’re about to dominate this savings game like it’s earnings season.\nNo lattes, no liabilities — just pure, uncut capital gains. Let’s build that war chest, bro 💼🔥""")
 
+
 @bot.message_handler(commands=['out'])
 def expense(message):
     """ Message to register a new expense value """

@@ -6,8 +6,8 @@ __pycache__/
 # C extensions
 *.so
 
-# Dataset related
-dataset/
+# Credentials
+credentials/
 
 # Distribution / packaging
 .Python
