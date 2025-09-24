@@ -42,8 +42,10 @@ def parse_expense_message(msg: str):
     
     if len(lines) == 4:
         str_value, description, category, date = lines
+        description = description.capitalize()
     elif len(lines) == 3:
         str_value, description, category = lines
+        description = description.capitalize()
         date = pendulum.now().format("DD/MM/YYYY")
     elif len(lines) == 2:
         str_value, category = lines
@@ -58,7 +60,7 @@ def parse_expense_message(msg: str):
     except ValueError:
         raise ValueError("Invalid value: Please only use numbers for the values.")
 
-    return float_value, description, category, date
+    return float_value, description, category.upper(), date
 
 def parse_income_message(msg: str):
     """

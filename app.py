@@ -50,7 +50,7 @@ def welcoming(message):
 def expense(message):
     """ Message to register a new expense value """
     chat_id = message.chat.id
-    bot.send_message(chat_id, f"Logging a new capital outflow, bro? What are we tagging this one as? ")
+    bot.send_message(chat_id, f"Logging a new capital outflow, bro? Tell me on the exact order:\n\nValue\nDescription (Optional)\nCategory\nDate DD/MM/YYYY (Empty if Today)")
     bot.register_next_step_handler(message, process_expense)
 
 @bot.message_handler(commands=['in'])
