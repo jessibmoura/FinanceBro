@@ -6,6 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
+app/__pycache__/
+app/docker-compose.yml
+
 # Credentials
 credentials/
 
