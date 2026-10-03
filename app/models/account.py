@@ -15,6 +15,7 @@ class AccountBase(SQLModel):
     account_type: AccountType = Field(default=AccountType.CORRENTE)  # ex: CORRENTE, POUPANCA, INVESTIMENTO
     closing_day: Optional[int] = Field(default=None, ge=1, le=31)
     due_day: Optional[int] = Field(default=None, ge=1, le=31)
+    icon: Optional[str] = Field(default=None, description="Nome ou caminho do arquivo do ícone (ex: nubank.png)")
 
 class AccountCreate(AccountBase):
     balance: Decimal = Field(default=Decimal("0.00"), max_digits=12, decimal_places=2)
@@ -25,6 +26,7 @@ class AccountUpdate(SQLModel):
     balance: Optional[Decimal] = Field(default=None, max_digits=12, decimal_places=2)
     closing_day: Optional[int] = Field(default=None, ge=1, le=31)
     due_day: Optional[int] = Field(default=None, ge=1, le=31)
+    icon: Optional[str] = None
 
 
 class Account(AccountBase, table=True):
@@ -35,4 +37,5 @@ class Account(AccountBase, table=True):
 
 
 class AccountRead(AccountBase):
-    pass
+    id: uuid.UUID
+    balance: Decimal

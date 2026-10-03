@@ -7,6 +7,13 @@ from app.models.recurring_bill import (
     RecurringBillRead,
     RecurringBillUpdate,
 )
+from app.models.account_snapshot import (
+    AccountSnapshot,
+    AccountSnapshotBase,
+    AccountSnapshotCreate,
+    AccountSnapshotRead,
+    AccountSnapshotUpdate,
+)
 from app.models.expense import (
     Expense,
     ExpenseBase,
@@ -24,6 +31,11 @@ __all__ = [
     "AccountCreate",
     "AccountRead",
     "AccountUpdate",
+    "AccountSnapshot",
+    "AccountSnapshotBase",
+    "AccountSnapshotCreate",
+    "AccountSnapshotRead",
+    "AccountSnapshotUpdate",
     "Category",
     "CategoryBase",
     "CategoryCreate",

@@ -7,7 +7,7 @@ __pycache__/
 *.so
 
 app/__pycache__/
-app/docker-compose.yml
+docker-compose.yml
 
 # Credentials
 credentials/
