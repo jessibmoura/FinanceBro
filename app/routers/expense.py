@@ -9,13 +9,17 @@ from app.models import Expense, ExpenseCreate, ExpenseRead, ExpenseUpdate
 router = APIRouter(prefix="/expenses", tags=["Expenses"])
 
 
-@router.post("/", response_model=ExpenseRead, status_code=status.HTTP_201_CREATED)
-def create_expense(expense_in: ExpenseCreate, session: Session = Depends(get_session)):
-    expense = Expense.model_validate(expense_in)
-    session.add(expense)
+@router.post("/add_expenses", response_model=List[ExpenseRead], status_code=status.HTTP_201_CREATED)
+def create_expenses(expenses_in: List[ExpenseCreate], session: Session = Depends(get_session)):
+    if not expenses_in:
+        return []
+    # Converte os schemas de entrada para instâncias do modelo de banco
+    db_expenses = [Expense.model_validate(exp) for exp in expenses_in]
+    session.add_all(db_expenses)
     session.commit()
-    session.refresh(expense)
-    return expense
+    for exp in db_expenses:
+        session.refresh(exp)
+    return db_expenses
 
 
 @router.get("/", response_model=List[ExpenseRead])

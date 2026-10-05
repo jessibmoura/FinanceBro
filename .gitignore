@@ -1,3 +1,6 @@
+# Script with personal rules for Python projects.
+ui/personal_rules.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
