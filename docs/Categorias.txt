@@ -1,0 +1,12 @@
+Categorias:
+- Mercado
+- Alimentação
+- Viagem
+- Saúde (Terapia, Remédios)
+- Assinatura
+- Igreja (Dízimo, Oferta)
+- Cuidado pessoal (Roupa, Bijuterias)
+- Lazer (Livro, Jogo, Presente)
+- Esporte (Corrida, Consultoria)
+- Transporte
+- Estudos

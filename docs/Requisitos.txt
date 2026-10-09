@@ -1,0 +1,31 @@
+Entrada de dados:
+- Arquivos csv (gerados da fatura dos bancos)
+- Linguagem natural para registrar gastos (para lidar com pagamentos PIX)
+- Registrar pagamentos recorrentes (uma única vez, mas que fique registrado para os meses seguintes)
+
+Organização de dados:
+Como usuária, eu quero ser capaz de...
+- Estabelecer limites de gastos por categoria
+- Estabelecer metas a curto e longo prazo
+- Cadastrar minhas contas bancárias (no caso, registrar informações como nome do banco, data de fechamento e vencimento, etc) e vincular os gastos com as respectivas contas
+- Registrar minhas economias (quanto dinheiro tenho guardado) de acordo com a conta bancária
+
+Como usuária, eu quero ser capaz de ver...
+- Meu gasto total até o dia atual
+- Gasto previsto para o final do mês (no caso, o que foi gasto com gastos previstos)
+- Total de gastos por categoria (e quão próximo está do limite)
+- Total de gastos por subcategoria
+- Balanço líquido (receitas vs despesas)
+- O quanto já armazenei para cada meta (porcentagem)
+- Para o caso de últimas parcelas (em compras parceladas) uma mensagem dizendo o quanto será liberado no mês seguinte
+
+Arquitetura:
+- Híbrida: Chatbot para registros via linguagem natural e página web (usando streamlit) para painel visual
+
+
+Observações:
+- Adicionar campo de active na tabela de goals (Para mostrar apenas metas que estão ativas)
+- Criar uma tabela apenas para registrar o income (com um campo para dizer se foi recorrente ou uma única transação e título)
+- Acho que em vez de transactions poderia ser o nome 'expenses'
+- O que é o parent_id em categories? Não entendi como isso faz um link com subcategorias
+- Observei que você deixou o recurring_bills separado de transactions; existe uma forma de, depois de pagar algum objeto do recurring_bills, apareça o registro no transactions? E balancear esse registro de forma que não fique repetindo informação?
