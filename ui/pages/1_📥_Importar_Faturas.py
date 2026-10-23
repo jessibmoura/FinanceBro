@@ -1,10 +1,17 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime
-from personal_rules import process_xp_sheet, categorize
-from utils import expand_installments
 import requests
+import sys
+from pathlib import Path
 
+PASTA_UI = Path(__file__).resolve().parent.parent
+if str(PASTA_UI) not in sys.path:
+    sys.path.append(str(PASTA_UI))
+
+
+from personal_rules import process_xp_sheet, process_nubank_sheet, categorize
+from utils import expand_installments
 from config import API_URL
 
 st.set_page_config(
@@ -56,6 +63,8 @@ ICONES_BANCO = {
 def normalize_dataframe(df: pd.DataFrame, bank_name: str) -> pd.DataFrame:
     if bank_name == "XP":
         df_result = process_xp_sheet(df)
+    elif bank_name == "Nubank":
+        df_result = process_nubank_sheet(df)
     df_result["icone"] = ICONES_BANCO.get(bank_name, None)
     df_result.insert(0, "importar", True)
     return df_result

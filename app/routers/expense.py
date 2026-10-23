@@ -82,3 +82,9 @@ def delete_expense(expense_id: uuid.UUID, session: Session = Depends(get_session
     session.delete(expense)
     session.commit()
     return None
+
+@router.delete("/clear-all/", status_code=status.HTTP_200_OK)
+def clear_all_expenses(session: Session = Depends(get_session)):
+    total_deletado = session.query(Expense).delete()
+    session.commit()
+    return {"message": f"{total_deletado} despesas removidas com sucesso."}
