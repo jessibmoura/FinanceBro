@@ -1,0 +1,25 @@
+1. Data Ingestion Requirements (Input Channels)
+IN-01 — CSV Invoice/Statement Parsing:
+Support file uploads for bank statements and credit card invoices.
+Extract dates, descriptions, amounts, and installment metadata ($N/M$).
+Enforce deduplication via SHA-256 fingerprint matching before saving to the database.
+IN-02 — Natural Language Entry (Pix / Real-Time Spending):
+Process plain-text inputs (e.g., "Gastei 45 no almoço via Nubank hoje" or "Pix de 120 pro condomínio").
+Automatically extract: Amount, Category/Subcategory, Payment Account, and Date (defaulting to current date/time).
+Respond with confirmation and prompt for quick clarifications if any required variable is missing.
+IN-03 — Single-Registration Recurring Expenses:
+Allow users to register a recurring obligation once (name, estimated amount, due day, target account, and category).
+Persist and project these recurring records indefinitely across subsequent calendar months without requiring re-entry.
+2. Data Management & User Stories (Configuration & Organization)
+US-01 — Budget Caps per Category: As a user, I want to set monetary spending caps for each root category so that I can prevent overspending during the active month.
+US-02 — Short & Long-Term Financial Goals: As a user, I want to create goals with target amounts, target dates, and priority classifications (short-term vs. long-term).
+US-03 — Bank Account & Credit Card Profiles:As a user, I want to register bank accounts, debit accounts, and credit cards with metadata including institution name, statement closing day, and payment due day. Link every transaction directly to its originating account.
+US-04 — Savings Balance by Account:As a user, I want to track reserved funds (emergency reserves, investments, dedicated savings) segregated by their respective bank institution.
+3. Analytical & Visibility Requirements (Dashboard Visual Outputs)
+VIS-01 — Month-to-Date (MTD) Expenditure: Display the aggregated real-time total of all settled expenses from day 1 of the active cycle up to the current day.
+VIS-02 — Projected Month-End Total:Calculate and display the expected month-end liability:$$\text{Projected Total} = \text{MTD Expenses} + \text{Remaining Unsettled Recurring Bills} + \text{Contracted Installments}$$
+VIS-03 — Budget Tracking by Category:Display total spending per root category juxtaposed against its predefined cap (numerical delta and percentage progress bar with threshold color alerts).
+VIS-04 — Granular Subcategory Breakdown:Provide secondary drill-down tables and charts breaking down expenditures at the child subcategory level.
+VIS-05 — Net Cash Flow (Liquid Balance):Present a comparative KPI:$$\text{Net Balance} = \text{Actual Inflows (Income)} - \text{Actual Outflows (Expenses)}$$
+VIS-06 — Financial Goals Progress:Show percentage fulfillment gauges ($\frac{\text{Current Allocated}}{\text{Target Amount}} \times 100$) for both short-term and long-term milestones.
+VIS-07 — Maturing Installment Cash Flow Relief Notice:Detect transactions marked with final installments ($N = M$). Display an informational alert highlighting upcoming cash flow liberation:"Your final installment for [Description] clears this month. R$ [Value] will be freed up in your budget starting next month."
